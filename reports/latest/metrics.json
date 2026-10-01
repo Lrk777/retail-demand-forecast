@@ -1,0 +1,48 @@
+{
+  "dataset": "UCI Online Retail (dataset 352)",
+  "source_url": "https://archive.ics.uci.edu/static/public/352/online+retail.zip",
+  "n_skus": 20,
+  "date_min": "2010-12-01",
+  "date_max": "2011-12-09",
+  "n_origins": 8,
+  "horizon": 7,
+  "best_model_by_inventory_service_cost": "hist_gradient_boosting",
+  "summary": [
+    {
+      "model": "hist_gradient_boosting",
+      "mae": 55.72137381064929,
+      "mape": 315.97199803253807,
+      "mape_positive": 231.34438460336477,
+      "smape": 83.71284307536732,
+      "inventory_service_cost": 173.12767316196943
+    },
+    {
+      "model": "moving_average",
+      "mae": 57.86352040816327,
+      "mape": 1050.7534315978883,
+      "mape_positive": 185.247644654368,
+      "smape": 93.15828604590669,
+      "inventory_service_cost": 183.33698979591836
+    },
+    {
+      "model": "seasonal_naive",
+      "mae": 59.966071428571425,
+      "mape": 179.45199974172436,
+      "mape_positive": 174.9198512490839,
+      "smape": 73.78349935362027,
+      "inventory_service_cost": 189.64464285714286
+    },
+    {
+      "model": "naive",
+      "mae": 84.61160714285714,
+      "mape": 1416.262821897506,
+      "mape_positive": 287.4645695689951,
+      "smape": 103.61897003480539,
+      "inventory_service_cost": 223.87946428571428
+    }
+  ],
+  "business_cost": {
+    "underage_cost": 5.0,
+    "overage_cost": 1.0
+  }
+}

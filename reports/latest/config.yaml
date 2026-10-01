@@ -1,0 +1,44 @@
+seed: 42
+
+data:
+  source: "UCI Online Retail (dataset 352)"
+  source_url: "https://archive.ics.uci.edu/static/public/352/online+retail.zip"
+  country: "United Kingdom"
+  n_skus: 20
+  min_selling_days: 150
+  max_spike_ratio: 30.0
+  raw_dir: "data/raw"
+  processed_path: "data/processed/uk_sku_daily.csv"
+  force_rebuild: false
+
+features:
+  lags: [1, 7, 14, 28]
+  roll_windows: [7, 14, 28]
+
+backtest:
+  horizon: 7
+  n_origins: 8
+  step: 7
+  min_train_days: 120
+
+baselines:
+  - naive
+  - seasonal_naive
+  - moving_average
+
+models:
+  hist_gradient_boosting:
+    max_depth: 6
+    learning_rate: 0.08
+    max_iter: 250
+    min_samples_leaf: 20
+    l2_regularization: 0.1
+
+business_cost:
+  # Asymmetric unit costs: stockouts typically hurt more than overstock.
+  underage_cost: 5.0   # cost per unit short (lost sale / service fail)
+  overage_cost: 1.0    # cost per unit over (holding / markdown proxy)
+
+reports:
+  run_dir: "reports/latest"
+  figures_dir: "reports/figures"
