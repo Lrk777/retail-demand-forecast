@@ -68,7 +68,31 @@ Checked-in backtest (seed **42**, 8 origins × 7-day horizon):
 | seasonal_naive | 60.0 | **174.9** | **73.8** | 189.6 |
 | naive | 84.6 | 287.5 | 103.6 | 223.9 |
 
-**Talk track:** Gradient boosting wins on **MAE** and **asymmetric inventory cost**. Seasonal naive wins **MAPE (y>0)** and **sMAPE** on this zero-inflated panel — a useful interview point that the “best” model depends on the decision metric, which is why ops roles often care about stockout-weighted cost, not percentage error alone.
+Gradient boosting has the lowest MAE and the lowest inventory/service cost. Seasonal naive has the best MAPE (y>0) and sMAPE on this zero-heavy panel, so the "best" model depends on the decision metric.
+
+### Is the lead real? (`python -m src.uncertainty`)
+
+A block bootstrap (2,000 resamples of the 160 origin × SKU blocks; negative means boosting is better):
+
+| Comparison | Mean difference per SKU-day | 95% interval | Verdict |
+|---|---:|---:|---|
+| MAE: boosting − moving average | −2.14 units | [−6.70, 2.50] | Not significant; an MAE-only team could keep the moving average |
+| Cost (5:1): boosting − moving average | −10.21 | [−18.85, −0.66] | Boosting is cheaper |
+| Cost (5:1): boosting − seasonal naive | −16.52 | [−32.93, 0.84] | Borderline (97% of resamples favour boosting) |
+| Cost (5:1): boosting − naive | −50.75 | [−78.91, −28.52] | Boosting is cheaper |
+
+Mean cost per SKU-day at different stockout-to-overstock cost ratios:
+
+| Model | 1:1 | 3:1 | 5:1 | 10:1 |
+|---|---:|---:|---:|---:|
+| hist gradient boosting | 55.7 | 114.4 | 173.1 | 319.9 |
+| moving average | 57.9 | 120.6 | 183.3 | 340.2 |
+| seasonal naive | 60.0 | 124.8 | 189.6 | 351.7 |
+| naive | 84.6 | 154.2 | 223.9 | 398.0 |
+
+Boosting has the lowest cost at every stockout-to-overstock ratio from 1:1 to 10:1 (`reports/latest/cost_ratio_sensitivity.csv`), so the choice doesn't hinge on the assumed 5:1.
+
+**Recommendation:** if stockouts cost more than overstock, which is true for most retailers, use gradient boosting; its advantage survives resampling and every cost ratio tested. If the team only tracks MAE, the moving average is statistically just as good and much simpler to run, so the extra model is only worth it once costs are part of the decision.
 
 ## Stack
 
@@ -82,6 +106,7 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt && pip install -e .
 python -m src.train --config configs/default.yaml
 python -m src.evaluate --run-dir reports/latest
+python -m src.uncertainty   # bootstrap intervals + cost-ratio sensitivity
 pytest -q -m "not slow"
 ```
 
